@@ -60,6 +60,29 @@ struct bitcoin_block *bitcoin_block_from_hex(const tal_t *ctx,
 	return b;
 }
 
+void bitcoin_block_blkid(const struct bitcoin_block *b,
+			 struct bitcoin_blkid *out)
+{
+	u8 *p   = tal_arr(NULL, u8, 0);
+	push_le32(b->hdr.version, push, &p);
+	push(&b->hdr.prev_hash, sizeof(b->hdr.prev_hash), &p);
+	push(&b->hdr.merkle_hash, sizeof(b->hdr.merkle_hash), &p);
+	push_le32(b->hdr.timestamp, push, &p);
+	if (is_elements) {
+		size_t clen = tal_bytelen(b->elements_hdr->proof.challenge);
+		push_le32(b->elements_hdr->block_height, push, &p);
+		push_varint(clen, push, &p);
+		push(b->elements_hdr->proof.challenge, clen, &p);
+		/* The solution is skipped, since that'd create a circular
+		 * dependency apparently */
+	} else {
+		push_le32(b->hdr.target, push, &p);
+		push_le32(b->hdr.nonce, push, &p);
+	}
+	sha256_double(&out->shad, p, tal_bytelen(p));
+	tal_free(p);
+}
+
 /* We do the same hex-reversing crud as txids. */
 bool bitcoin_blkid_from_hex(const char *hexstr, size_t hexstr_len,
 			    struct bitcoin_blkid *blockid)
