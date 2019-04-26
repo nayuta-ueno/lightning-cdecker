@@ -83,8 +83,22 @@ bool bitcoin_tx_check(const struct bitcoin_tx *tx)
 void bitcoin_tx_output_set_amount(struct bitcoin_tx *tx, int outnum,
 				  struct amount_sat *amount)
 {
+	u64 satoshis = amount->satoshis; /* Raw: low-level helper */
+	struct wally_tx_output *output = &tx->wtx->outputs[outnum];
 	assert(outnum < tx->wtx->num_outputs);
-	tx->wtx->outputs[outnum].satoshi = amount->satoshis; /* Raw: low-level helper */
+	if (is_elements) {
+		u8 raw[9];
+		be64 rawu64;
+		output->asset = bitcoin_asset;
+		output->asset_len = sizeof(bitcoin_asset);
+		output->value_len = 9;
+		raw[0] = 0x01; /* Value version 01 */
+		rawu64 = cpu_to_be64(satoshis);
+		memcpy(raw+1, &rawu64, 8);
+		output->satoshi = UINT64_MAX;
+	} else {
+		output->satoshi = satoshis;
+	}
 }
 
 const u8 *bitcoin_tx_output_get_script(const tal_t *ctx,
