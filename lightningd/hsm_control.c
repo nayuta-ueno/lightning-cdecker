@@ -93,8 +93,12 @@ void hsm_init(struct lightningd *ld)
 		err(1, "Could not subd hsm");
 
 	ld->hsm_fd = fds[0];
-	if (!wire_sync_write(ld->hsm_fd, towire_hsm_init(tmpctx,
-				  &ld->topology->bitcoind->chainparams->bip32_key_version)))
+	if (!wire_sync_write(
+		ld->hsm_fd,
+		towire_hsm_init(
+		    tmpctx,
+		    &ld->topology->bitcoind->chainparams->bip32_key_version,
+		    &ld->topology->bitcoind->chainparams->genesis_blockhash)))
 		err(1, "Writing init msg to hsm");
 
 	ld->wallet->bip32_base = tal(ld->wallet, struct ext_key);
