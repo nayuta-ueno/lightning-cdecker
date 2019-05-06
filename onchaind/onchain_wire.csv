@@ -5,6 +5,7 @@
 # Begin!  Here's the onchain tx which spends funding tx, followed by all HTLCs.
 onchain_init,5001
 onchain_init,,shachain,struct shachain
+onchain_init,,is_elements,bool
 onchain_init,,funding_amount_satoshi,struct amount_sat
 # Remote per commit point for committed tx.
 onchain_init,,old_remote_per_commitment_point,struct pubkey

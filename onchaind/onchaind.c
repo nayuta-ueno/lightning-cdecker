@@ -2517,6 +2517,7 @@ int main(int argc, char *argv[])
 	msg = wire_sync_read(tmpctx, REQ_FD);
 	if (!fromwire_onchain_init(tmpctx, msg,
 				   &shachain,
+				   &is_elements,
 				   &funding,
 				   &old_remote_per_commit_point,
 				   &remote_per_commit_point,

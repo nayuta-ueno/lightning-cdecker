@@ -509,6 +509,7 @@ enum watch_result onchaind_funding_spent(struct channel *channel,
 
 	msg = towire_onchain_init(channel,
 				  &channel->their_shachain.chain,
+				  is_elements,
 				  channel->funding,
 				  &channel->channel_info.old_remote_per_commit,
 				  &channel->channel_info.remote_per_commit,
