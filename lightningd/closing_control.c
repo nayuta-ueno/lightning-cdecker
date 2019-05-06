@@ -8,6 +8,7 @@
 #include <errno.h>
 #include <gossipd/gen_gossip_wire.h>
 #include <inttypes.h>
+#include <lightningd/bitcoind.h>
 #include <lightningd/chaintopology.h>
 #include <lightningd/channel.h>
 #include <lightningd/closing_control.h>
@@ -265,6 +266,7 @@ void peer_start_closingd(struct channel *channel,
 	}
 	initmsg = towire_closing_init(tmpctx,
 				      pps,
+				      &channel->peer->ld->topology->bitcoind->chainparams->genesis_blockhash,
 				      &channel->funding_txid,
 				      channel->funding_outnum,
 				      channel->funding,

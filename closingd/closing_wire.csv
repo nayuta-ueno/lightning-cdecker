@@ -4,6 +4,7 @@
 # Begin!  (passes peer fd, gossipd-client fd)
 closing_init,2001
 closing_init,,pps,struct per_peer_state
+closing_init,,chain_hash,struct bitcoin_blkid
 closing_init,,funding_txid,struct bitcoin_txid
 closing_init,,funding_txout,u16
 closing_init,,funding_satoshi,struct amount_sat
