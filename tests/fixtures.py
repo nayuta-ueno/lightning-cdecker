@@ -250,3 +250,25 @@ def executor():
     ex = futures.ThreadPoolExecutor(max_workers=20)
     yield ex
     ex.shutdown(wait=False)
+
+
+@pytest.fixture
+def chainparams():
+    chainparams = {
+        'regtest': {
+            "bip173_prefix": "bcrt",
+            "elements": False,
+            "name": "regtest",
+            "p2sh_prefix": '2',
+            "elements": False,
+        },
+        'liquid-regtest': {
+            "bip173_prefix": "ert",
+            "elements": True,
+            "name": "liquid-regtest",
+            "p2sh_prefix": 'X',
+            "elements": True,
+        }
+    }
+
+    return chainparams[config['TEST_NETWORK']]
