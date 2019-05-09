@@ -58,6 +58,12 @@ int bitcoin_tx_add_output(struct bitcoin_tx *tx, const u8 *script,
 	return i;
 }
 
+static bool bitcoin_tx_output_is_fee(const struct bitcoin_tx *tx, int outnum)
+{
+	assert(outnum < tx->wtx->num_outputs);
+	return is_elements && tx->wtx->outputs[outnum].script_len == 0;
+}
+
 /**
  * Compute how much fee we are actually sending with this transaction.
  */
@@ -69,6 +75,9 @@ static u64 bitcoin_tx_compute_fee(const struct bitcoin_tx *tx)
 		fee += tx->input_amounts[i]->satoshis; /* Raw: fee computation */
 
 	for (size_t i=0; i<tx->wtx->num_outputs; i++) {
+		if (bitcoin_tx_output_is_fee(tx, i))
+			continue;
+
 		if (!is_elements) {
 			fee -= tx->wtx->outputs[i].satoshi; /* Raw: low-level helper */
 		}else {
@@ -85,13 +94,28 @@ static u64 bitcoin_tx_compute_fee(const struct bitcoin_tx *tx)
 int bitcoin_tx_add_fee_output(struct bitcoin_tx *tx)
 {
 	struct amount_sat fee;
+	int pos = -1;
 	u64 rawsats = bitcoin_tx_compute_fee(tx); /* Raw: pedantic much? */
 	fee.satoshis = rawsats; /* Raw: need amounts later */
 
 	/* If we aren't using elements, we don't add explicit fee outputs */
 	if (!is_elements || rawsats == 0)
 		return -1;
-	return bitcoin_tx_add_output(tx, NULL, &fee);
+
+	/* Try to find any existing fee output */
+	for (int i=0; i<tx->wtx->num_outputs; i++) {
+		if (bitcoin_tx_output_is_fee(tx, i)) {
+			assert(pos == -1);
+			pos = i;
+		}
+	}
+
+	if (pos == -1){
+		return bitcoin_tx_add_output(tx, NULL, &fee);
+	} else {
+		bitcoin_tx_output_set_amount(tx, pos, &fee);
+		return pos;
+	}
 }
 
 int bitcoin_tx_add_input(struct bitcoin_tx *tx, const struct bitcoin_txid *txid,
@@ -129,9 +153,6 @@ bool bitcoin_tx_check(const struct bitcoin_tx *tx)
 
 	if (is_elements) {
 		flags |= WALLY_TX_FLAG_USE_ELEMENTS;
-		/* Elements transactions must have an explicit fee */
-		if (bitcoin_tx_compute_fee(tx) != 0)
-			return false;
 	}
 
 	newtx = tal_arr(tmpctx, u8, written);
