@@ -449,7 +449,8 @@ static bool compose_and_broadcast_tx(struct lightningd *ld,
 	/* Make sure we recognize our change output by its scriptpubkey in
 	 * future. This assumes that we have only two outputs, may not be true
 	 * if we add support for multifundchannel */
-	if (fundingtx->wtx->num_outputs == 2)
+	int output_count = is_elements?3:2;
+	if (fundingtx->wtx->num_outputs == output_count)
 		txfilter_add_scriptpubkey(ld->owned_txfilter, bitcoin_tx_output_get_script(tmpctx, fundingtx, !funding_outnum));
 
 
