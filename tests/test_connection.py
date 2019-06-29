@@ -1,5 +1,6 @@
 from collections import namedtuple
 from fixtures import *  # noqa: F401,F403
+from fixtures import TEST_NETWORK
 from flaky import flaky  # noqa: F401
 from lightning import RpcError
 from utils import DEVELOPER, only_one, wait_for, sync_blockheight, VALGRIND
@@ -853,6 +854,7 @@ def test_funding_external_wallet_corners(node_factory, bitcoind):
     l1.rpc.fundchannel_start(l2.info['id'], amount)
 
 
+@unittest.skipIf(TEST_NETWORK != 'regtest', "External wallet support doesn't work with elements yet.")
 def test_funding_external_wallet(node_factory, bitcoind):
     l1 = node_factory.get_node()
     l2 = node_factory.get_node()
