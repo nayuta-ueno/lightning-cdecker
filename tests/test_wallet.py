@@ -9,6 +9,7 @@ import pytest
 import time
 import unittest
 
+
 @unittest.skipIf(TEST_NETWORK != 'regtest', "Test relies on a number of example addresses valid only in regtest")
 def test_withdraw(node_factory, bitcoind):
     amount = 1000000
