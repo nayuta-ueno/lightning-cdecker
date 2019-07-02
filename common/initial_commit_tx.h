@@ -46,6 +46,10 @@ static inline struct amount_sat commit_tx_base_fee(u32 feerate_per_kw,
 		 * for us as long as we use unblinded L-BTC transactions). */
 		weight += 2 * 4;
 
+		/* Inputs have 6 bytes of blank proofs attached. This TX only
+		 * has a single input. */
+		weight += 6;
+
 		/* Each direct output has a bit more weight to it */
 		weight += (32 + 1 + 1 + 1) * 4 * 2; /* Elements added fields */
 
