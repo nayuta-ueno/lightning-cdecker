@@ -305,10 +305,11 @@ static const struct utxo **wallet_select(const tal_t *ctx, struct wallet *w,
 		/* Each output additionally has an asset_tag (1 + 32), value
 		 * is prefixed by a version (1 byte) and an empty nonce (1
 		 * byte). */
-		weight += (32 + 1 + 1 + 8 + 1) * 4 * num_outputs;
+		weight += (32 + 1 + 1 + 1) * 4 * num_outputs;
 
 		/* An elements transaction has 1 additional output for fees */
-		weight += (32 + 1 + 1 + 8 + 1) * 4;
+		weight += (8 + 1) * 4; /* Bitcoin style output */
+		weight += (32 + 1 + 1 + 1) * 4; /* Elements added fields */
 	}
 
 	*fee_estimate = AMOUNT_SAT(0);
